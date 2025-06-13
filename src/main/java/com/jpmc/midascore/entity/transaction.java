@@ -1,27 +1,27 @@
-package com.jpmc.midascore.foundation;
+package com.jpmc.midascore.entity;
 
-public class Transaction {
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
+@Entity
+@Table(name = "transactions")
+public class transaction {
+
+    @Id
     private String id;
+
     private float amount;
     private String source;
     private String destination;
     private String timestamp;
 
     // Default constructor
-    public Transaction() {
-    }
-    // New constructor to support test usage
-    public Transaction(long id, long timestamp, float amount) {
-        this.id = String.valueOf(id);
-        this.timestamp = String.valueOf(timestamp);
-        this.amount = amount;
-        this.source = "test-source";
-        this.destination = "test-destination";
+    public transaction() {
     }
 
     // All-args constructor
-    public Transaction(String id, float amount, String source, String destination, String timestamp) {
+    public transaction(String id, float amount, String source, String destination, String timestamp) {
         this.id = id;
         this.amount = amount;
         this.source = source;
@@ -70,9 +70,4 @@ public class Transaction {
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
-
-    public void setTarget(String target) {
-        this.destination = target;
-    }
 }
-

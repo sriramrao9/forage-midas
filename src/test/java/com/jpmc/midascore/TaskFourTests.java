@@ -1,5 +1,9 @@
 package com.jpmc.midascore;
 
+import com.jpmc.midascore.kafka.KafkaProducer;
+import com.jpmc.midascore.util.FileLoader;
+import com.jpmc.midascore.UserPopulator;
+
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +35,6 @@ public class TaskFourTests {
             kafkaProducer.send(transactionLine);
         }
         Thread.sleep(2000);
-
 
         logger.info("----------------------------------------------------------");
         logger.info("----------------------------------------------------------");

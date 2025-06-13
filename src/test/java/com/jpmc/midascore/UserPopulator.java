@@ -1,7 +1,7 @@
 package com.jpmc.midascore;
-
-import com.jpmc.midascore.component.DatabaseConduit;
 import com.jpmc.midascore.entity.UserRecord;
+import com.jpmc.midascore.entity.DatabaseConduit;
+import com.jpmc.midascore.util.FileLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 public class UserPopulator {
     @Autowired
     private FileLoader fileLoader;
+    FileLoader loader = new FileLoader();
+
 
     @Autowired
     private DatabaseConduit databaseConduit;
