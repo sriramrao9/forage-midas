@@ -12,7 +12,7 @@ public class User {
     private String name;
     private double balance; // ✅ updated from float to double
 
-    // Getters and setters
+    // Getters and setters abc
     public Long getId() {
         return id;
     }
