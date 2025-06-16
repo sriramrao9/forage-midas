@@ -4,6 +4,9 @@ public class Balance {
     private String userId;
     private double balance;
 
+    // ✅ Default constructor required by Jackson
+    public Balance() {}
+
     public Balance(String userId, double balance) {
         this.userId = userId;
         this.balance = balance;

@@ -1,4 +1,4 @@
-package com.jpmc.midascore;
+package Services;
 
 import org.junit.jupiter.api.Test;
 

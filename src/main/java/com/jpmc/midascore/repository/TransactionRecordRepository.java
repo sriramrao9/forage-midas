@@ -1,7 +1,9 @@
 package com.jpmc.midascore.repository;
 
 import com.jpmc.midascore.entity.TransactionRecord;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
 
-public interface TransactionRecordRepository extends CrudRepository<TransactionRecord, Long> {
+public interface TransactionRecordRepository extends JpaRepository<TransactionRecord, Long> {
+    List<TransactionRecord> findByUserIdAndValid(String userId, boolean valid);
 }

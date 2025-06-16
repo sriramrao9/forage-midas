@@ -1,8 +1,9 @@
-package com.jpmc.midascore.entity;
+package com.jpmc.midascore.repository;
 
-public class DatabaseConduit {
-    public void save(Object o) {
-        // dummy method to allow .save()
-        System.out.println("Saving: " + o);
-    }
+import com.jpmc.midascore.entity.User;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface DatabaseConduit extends CrudRepository<User, Long> {
 }

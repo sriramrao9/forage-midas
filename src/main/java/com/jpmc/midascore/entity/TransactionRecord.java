@@ -9,62 +9,21 @@ public class TransactionRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private double amount;
-    private String timestamp;
-    private double incentive;
-
-    @ManyToOne
-    private User sender;
-
-    @ManyToOne
-    private User recipient;
+    private String userId;
+    private Double amount;
+    private String transactionType; // CREDIT or DEBIT
+    private boolean valid;
 
     // Getters and setters
-    public Long getId() {
-        return id;
-    }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Double getAmount() { return amount; }
+    public void setAmount(Double amount) { this.amount = amount; }
 
-    public double getAmount() {
-        return amount;
-    }
+    public String getTransactionType() { return transactionType; }
+    public void setTransactionType(String transactionType) { this.transactionType = transactionType; }
 
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public double getIncentive() {
-        return incentive;
-    }
-
-    public void setIncentive(double incentive) {
-        this.incentive = incentive;
-    }
-
-    public User getSender() {
-        return sender;
-    }
-
-    public void setSender(User sender) {
-        this.sender = sender;
-    }
-
-    public User getRecipient() {
-        return recipient;
-    }
-
-    public void setRecipient(User recipient) {
-        this.recipient = recipient;
-    }
+    public boolean isValid() { return valid; }
+    public void setValid(boolean valid) { this.valid = valid; }
 }

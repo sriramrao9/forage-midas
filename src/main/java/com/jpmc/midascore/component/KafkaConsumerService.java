@@ -1,64 +1,60 @@
 package com.jpmc.midascore.component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpmc.midascore.entity.TransactionRecord;
-import com.jpmc.midascore.foundation.Transaction;
-import com.jpmc.midascore.entity.User;
+import com.jpmc.midascore.entity.User; // ✅ Import the existing User class
 import com.jpmc.midascore.repository.TransactionRecordRepository;
 import com.jpmc.midascore.repository.UserRepository;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
-@Service
+@Component
 public class KafkaConsumerService {
 
+    private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
-    private final TransactionRecordRepository transactionRecordRepository;
+    private final TransactionRecordRepository transactionRepository;
 
-    public KafkaConsumerService(UserRepository userRepository,
-                                TransactionRecordRepository transactionRecordRepository) {
+    public KafkaConsumerService(ObjectMapper objectMapper,
+                                UserRepository userRepository,
+                                TransactionRecordRepository transactionRepository) {
+        this.objectMapper = objectMapper;
         this.userRepository = userRepository;
-        this.transactionRecordRepository = transactionRecordRepository;
+        this.transactionRepository = transactionRepository;
     }
 
-    @KafkaListener(topics = "transactions", groupId = "midas-core")
-    public void listen(Transaction transaction) {
-        String senderName = transaction.getSource();
-        String recipientName = transaction.getDestination();
-        float amount = transaction.getAmount();
+    @KafkaListener(topics = "transactions", groupId = "midas-core-group")
+    public void consume(ConsumerRecord<String, String> record) throws Exception {
+        String message = record.value();
+        TransactionRecord transaction = objectMapper.readValue(message, TransactionRecord.class);
 
-        Optional<User> senderOpt = userRepository.findByName(senderName);
-        Optional<User> recipientOpt = userRepository.findByName(recipientName);
+        if (isValidTransaction(transaction)) {
+            transaction.setValid(true);
+            transactionRepository.save(transaction);
 
-        if (senderOpt.isPresent() && recipientOpt.isPresent()) {
-            User sender = senderOpt.get();
-            User recipient = recipientOpt.get();
-
-            if (sender.getBalance() >= amount) {
-                // Adjust balances
-                sender.setBalance(sender.getBalance() - amount);
-                recipient.setBalance(recipient.getBalance() + amount);
-
-                // Save updated users
-                userRepository.save(sender);
-                userRepository.save(recipient);
-
-                // Record transaction
-                TransactionRecord record = new TransactionRecord();
-                record.setAmount(amount);
-                record.setSender(sender);
-                record.setRecipient(recipient);
-                record.setTimestamp(transaction.getTimestamp());
-
-                transactionRecordRepository.save(record);
-
-                System.out.println("✅ Transaction recorded successfully.");
-            } else {
-                System.out.println("❌ Insufficient balance. Skipping transaction.");
-            }
+            // Optional: update user balance or other logic
         } else {
-            System.out.println("❌ Invalid sender or recipient. Skipping transaction.");
+            transaction.setValid(false);
+            transactionRepository.save(transaction);
         }
+    }
+
+    private boolean isValidTransaction(TransactionRecord transaction) {
+        // Validate based on rules (e.g., DEBIT must not overdraw)
+        if ("DEBIT".equalsIgnoreCase(transaction.getTransactionType())) {
+            double balance = calculateBalance(transaction.getUserId());
+            return balance >= transaction.getAmount();
+        }
+        return true;
+    }
+
+    private double calculateBalance(String userId) {
+        return transactionRepository.findByUserIdAndValid(userId, true)
+                .stream()
+                .mapToDouble(t -> "CREDIT".equalsIgnoreCase(t.getTransactionType())
+                        ? t.getAmount()
+                        : -t.getAmount())
+                .sum();
     }
 }

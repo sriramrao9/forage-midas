@@ -1,5 +1,7 @@
-package com.jpmc.midascore;
+package Services;
 
+import com.jpmc.midascore.kafka.KafkaProducer;
+import com.jpmc.midascore.repository.FileLoader;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,33 +13,34 @@ import org.springframework.test.annotation.DirtiesContext;
 @SpringBootTest
 @DirtiesContext
 @EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"})
-public class TaskThreeTests {
-    static final Logger logger = LoggerFactory.getLogger(TaskThreeTests.class);
+public class TaskFourTests {
+
+    static final Logger logger = LoggerFactory.getLogger(TaskFourTests.class);
 
     @Autowired
     private KafkaProducer kafkaProducer;
 
     @Autowired
-    private UserPopulator userPopulator;
-
-    @Autowired
     private FileLoader fileLoader;
 
+    @Autowired
+    private UserPopulator userPopulator;
+
     @Test
-    void task_three_verifier() throws InterruptedException {
+    void task_four_verifier() throws InterruptedException {
         userPopulator.populate();
-        String[] transactionLines = fileLoader.loadStrings("/test_data/mnbvcxz.vbnm");
+        String[] transactionLines = fileLoader.loadStrings("/test_data/alskdjfh.fhdjsk");
+
         for (String transactionLine : transactionLines) {
             kafkaProducer.send(transactionLine);
         }
-        Thread.sleep(2000);
 
+        Thread.sleep(2000); // give time for processing
 
         logger.info("----------------------------------------------------------");
-        logger.info("----------------------------------------------------------");
-        logger.info("----------------------------------------------------------");
-        logger.info("use your debugger to find out what waldorf's balance is after all transactions are processed");
+        logger.info("use your debugger to find out what Wilbur's balance is after all transactions are processed");
         logger.info("kill this test once you find the answer");
+
         while (true) {
             Thread.sleep(20000);
             logger.info("...");

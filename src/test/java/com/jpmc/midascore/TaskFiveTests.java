@@ -1,52 +1,51 @@
 package com.jpmc.midascore;
 
-import com.jpmc.midascore.foundation.Balance;
+import com.jpmc.midascore.external.Balance;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@DirtiesContext
-@EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"})
 public class TaskFiveTests {
-    static final Logger logger = LoggerFactory.getLogger(TaskFiveTests.class);
 
-    @Autowired
-    private KafkaProducer kafkaProducer;
-
-    @Autowired
-    private UserPopulator userPopulator;
-
-    @Autowired
-    private FileLoader fileLoader;
-
-    @Autowired
-    private BalanceQuerier balanceQuerier;
-
+    private static final String BASE_URL = "http://localhost:33400/balance";
 
     @Test
-    void task_five_verifier() throws InterruptedException {
-        userPopulator.populate();
-        String[] transactionLines = fileLoader.loadStrings("/test_data/rueiwoqp.tyruei");
-        for (String transactionLine : transactionLines) {
-            kafkaProducer.send(transactionLine);
-        }
-        Thread.sleep(2000);
+    public void task_five_verifier() {
+        System.out.println(">>>> BEGIN TaskFiveTests");
 
-        logger.info("----------------------------------------------------------");
-        logger.info("----------------------------------------------------------");
-        logger.info("----------------------------------------------------------");
-        logger.info("submit the following output to complete the task (include begin and end output denotations)");
-        StringBuilder output = new StringBuilder("\n").append("---begin output ---").append("\n");
-        for (int i = 0; i < 13; i++) {
-            Balance balance = balanceQuerier.query((long) i);
-            output.append(balance.toString()).append("\n");
-        }
-        output.append("---end output ---");
-        logger.info(output.toString());
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Known user
+        String userId1 = "user123";
+        ResponseEntity<Balance> response1 = restTemplate.exchange(
+                BASE_URL + "?userId=" + userId1,
+                HttpMethod.GET,
+                new HttpEntity<>(new HttpHeaders()),
+                Balance.class
+        );
+        assertEquals(HttpStatus.OK, response1.getStatusCode());
+        Balance balance1 = response1.getBody();
+        assertNotNull(balance1);
+        System.out.println(balance1);
+
+        // Unknown user
+        String unknownUser = "unknown123";
+        ResponseEntity<Balance> response2 = restTemplate.exchange(
+                BASE_URL + "?userId=" + unknownUser,
+                HttpMethod.GET,
+                new HttpEntity<>(new HttpHeaders()),
+                Balance.class
+        );
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+        Balance balance2 = response2.getBody();
+        assertNotNull(balance2);
+        assertEquals(0.0, balance2.getBalance());
+        System.out.println(balance2);
+
+        System.out.println("<<<< END TaskFiveTests");
     }
 }

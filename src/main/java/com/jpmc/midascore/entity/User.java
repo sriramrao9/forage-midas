@@ -3,6 +3,7 @@ package com.jpmc.midascore.entity;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "users")
 public class User {
 
     @Id
@@ -10,30 +11,38 @@ public class User {
     private Long id;
 
     private String name;
-    private double balance; // ✅ updated from float to double
 
-    // Getters and setters abc
-    public Long getId() {
-        return id;
+    private Float balance;
+
+    public User() {
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public User(String name, Float balance) {
+        this.name = name;
+        this.balance = balance;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getName() {
         return name;
     }
 
+    public Float getBalance() {
+        return balance;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
 
-    public double getBalance() { // ✅ updated
-        return balance;
-    }
-
-    public void setBalance(double balance) { // ✅ updated
+    public void setBalance(Float balance) {
         this.balance = balance;
     }
 }
